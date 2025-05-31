@@ -1,4 +1,4 @@
-import {Sequelize} from 'sequelize';
+import {Sequelize} from 'sequelize-typescript';
 const sequelize = new Sequelize({
     database: process.env.DB_NAME ,
     username:process.env.DB_USERNAME,
@@ -6,6 +6,7 @@ const sequelize = new Sequelize({
     host: process.env.DB_HOST,
     dialect: "mysql",
     port: Number(process.env.DB_PORT),
+    models:[__dirname+ '/models']
 })
 
 sequelize.authenticate()
@@ -16,4 +17,10 @@ sequelize.authenticate()
         console.error( error);
     });
 
+
+
+    sequelize.sync({force:false})
+    .then(() => {
+        console.log('Database Migrate Successfully.');
+    })
 export default sequelize;
