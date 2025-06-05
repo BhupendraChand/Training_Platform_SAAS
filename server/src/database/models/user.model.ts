@@ -32,6 +32,7 @@ type: DataType.STRING,
 
 @Column({
     type: DataType.STRING,
+    unique: true
     
 })
 
