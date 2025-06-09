@@ -2,7 +2,7 @@
 import { Request, Response } from 'express';
 import User from '../../../database/models/user.model';
 import bcrypt from "bcrypt"
-
+import jwt from 'jsonwebtoken'
 class AuthController {
 
     // register user
@@ -32,52 +32,50 @@ class AuthController {
         })
     }
 
+    
+
     /// login user 
-    static async loginUser(req: Request, res: Response) {
-        if (req.body == undefined) {
-            res.status(400).json({
-                message: "No data Sent!"
-            })
-            return
-        }
-
-        const { email, password } = req.body
-        if (!email || !password) {
-            res.status(400).json({
-                message: "Please Enter the Email and Password!"
-            })
-        }
-
-        //for email check
-        const [data] = await User.findAll({
-            where:
-            {
-                email
-            }
+    static async loginUser(req:Request,res:Response){
+    const {email,password} = req.body 
+    if(!email || !password){
+        res.status(400).json({
+            message : "Please provide email,password "
         })
-
-        if (data) {
-            const passwordMatched = bcrypt.compareSync(password, data.password)
-
-            if (passwordMatched) {
-                //create token
-                res.status(200).json({
-                    message: "Login Successfully!"
-                })
-            } else {
-                res.status(400).json({
-                    message: "Invalid Password!"
-                })
-            }
-
-        } else {
-            res.status(400).json({
-                message: "Email  is not registered!"
-            })
-        }
+        return
     }
-}
+    // check if email exist or not in our users table
+    const data = await User.findAll({
+        where : {
+            email
+        }
+    }) 
+    // select * from User where email="bhupendra@gmail.com" AND age = 22
+    if(data.length ==0){
+        res.status(404).json({
+            message : "Not registered!!"
+        })
+    }else{
+        // check password , nepal123 --> hash conversion --> fsdkjfsdfjsd
+        // compare(plain password user bata aako password, hashed password register huda table ma baseko)
+         const isPasswordMatch = bcrypt.compareSync(password,data[0].password)
+         if(isPasswordMatch){
+            // login vayo , token generation 
+           const token =  jwt.sign({id :data[0].id },"thisissecrethai",{
+                expiresIn : "90d"
+            })
+            res.json({
+                token : token
+            })
+         }else{
+            res.status(403).json({
+                message : "Invalid email or password"
+            })
+         }
 
+    }
+   }
+   
+}
 
 
 export default AuthController
