@@ -49,14 +49,14 @@ class AuthController {
             email
         }
     }) 
-    // select * from User where email="bhupendra@gmail.com" AND age = 22
+    // select * from User where email
     if(data.length ==0){
         res.status(404).json({
             message : "Not registered!!"
         })
     }else{
-        // check password , nepal123 --> hash conversion --> fsdkjfsdfjsd
-        // compare(plain password user bata aako password, hashed password register huda table ma baseko)
+    //    check password and hash password
+       
          const isPasswordMatch = bcrypt.compareSync(password,data[0].password)
          if(isPasswordMatch){
             // login vayo , token generation 
@@ -65,7 +65,7 @@ class AuthController {
             })
             res.status(200).json({
                 token : token,
-                message:"Login Successful."
+                message:"User Login Successful."
 
             })
          }else{

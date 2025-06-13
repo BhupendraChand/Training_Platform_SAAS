@@ -1,4 +1,6 @@
 import {Sequelize} from 'sequelize-typescript';
+import { config } from "dotenv";
+config()
 const sequelize = new Sequelize({
     database: process.env.DB_NAME ,
     username:process.env.DB_USERNAME,
@@ -19,7 +21,7 @@ sequelize.authenticate()
 
 
 
-sequelize.sync({alter:false})
+sequelize.sync({alter:true})
     .then(() => {
         console.log('Database Migrate Successfully.');
     })
