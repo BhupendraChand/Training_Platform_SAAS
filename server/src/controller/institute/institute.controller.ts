@@ -1,9 +1,19 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import sequelize from "../../database/connection";
 import generateRandomInsituteNumber from "../../services/generate.random.institute.number";
 
+interface IExtendedRequest extends Request {
+    user?: {
+        name: string;
+       age: number;
+       
+    }
+}
 
-const createInstitute = async (req:Request,res:Response)=>{
+
+
+const createInstitute = async (req:IExtendedRequest,res:Response,next:NextFunction)=>{
+    console.log(req.user ,"Name from middleware")
        
         const {instituteName,instituteEmail,institutePhoneNumber,instituteAddress} = req.body 
         const instituteVatNo = req.body.instituteVatNo || null 
@@ -15,8 +25,7 @@ const createInstitute = async (req:Request,res:Response)=>{
             return
         }
 
-        // aayo vane - insitute create garnu paryo --> insitute_123123, course_123132 
-        // institute (name)
+       
 
         const instituteNumber =   generateRandomInsituteNumber()  
        await sequelize.query(`CREATE TABLE IF NOT EXISTS institute_${instituteNumber} (
@@ -35,18 +44,20 @@ const createInstitute = async (req:Request,res:Response)=>{
             replacements : [instituteName,instituteEmail,institutePhoneNumber,instituteAddress,institutePanNo,instituteVatNo]
         })
 
-        await sequelize.query(`CREATE TABLE teacher_${instituteNumber}(
-            id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, 
-            teacherName VARCHAR(255) NOT NULL, 
-            teacherEmail VARCHAR(255) NOT NULL UNIQUE, 
-            teacherPhoneNumber VARCHAR(255) NOT NULL UNIQUE
-            )`)
-        
         res.status(200).json({
             message : "Institute Inserted Successfully!"
         })
+         next()
     }
 
+    const createTeacherTable = async (req:Request,res:Response)=>{    
+// await sequelize.query(`CREATE TABLE teacher_${instituteNumber}(
+//             id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, 
+//             teacherName VARCHAR(255) NOT NULL, 
+//             teacherEmail VARCHAR(255) NOT NULL UNIQUE, 
+//             teacherPhoneNumber VARCHAR(255) NOT NULL UNIQUE
+//             )`)
+    }
 
 
 export default createInstitute
