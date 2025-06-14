@@ -1,15 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import sequelize from "../../database/connection";
 import generateRandomInsituteNumber from "../../services/generate.random.institute.number";
-
-interface IExtendedRequest extends Request {
-    user?: {
-        name: string;
-       age: number;
-       
-    }
-}
-
+import { IExtendedRequest } from "../../middleware/type";
 
 
 const createInstitute = async (req:IExtendedRequest,res:Response,next:NextFunction)=>{

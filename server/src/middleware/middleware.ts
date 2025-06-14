@@ -1,16 +1,10 @@
 import { NextFunction, Request, Response } from "express"
 import jwt from 'jsonwebtoken'
 import User from "../database/models/user.model"
+import { IExtendedRequest } from "./type"
 
-interface IExtendedRequest extends Request{
-   user ?: {
-    email : string, 
-    role : string, 
-    username : string | null
-   }
-}
 
-const isLoggedIn = async (req:IExtendedRequest,res:Response,next:NextFunction):Promise<void>=>{
+const isLoggedIn = async (req:IExtendedRequest,res:Response,next:NextFunction)=>{
   
     // token accept 
 
