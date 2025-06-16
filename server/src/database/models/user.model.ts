@@ -41,10 +41,18 @@ declare email:string
 
 @Column({
     type: DataType.ENUM('teacher','institute','super-admin','admin','student'),
-    defaultValue: 'student',
+    defaultValue: 'student'
+
     
 })
 declare role:string
+
+ @Column({
+    type: DataType.STRING,
+ })
+
+
+ declare currentInstituteNumber:string 
 
 
 

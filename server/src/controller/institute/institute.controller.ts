@@ -2,11 +2,12 @@ import { NextFunction, Request, Response } from "express";
 import sequelize from "../../database/connection";
 import generateRandomInsituteNumber from "../../services/generate.random.institute.number";
 import { IExtendedRequest } from "../../middleware/type";
+import User from "../../database/models/user.model";
 
 
 const createInstitute = async (req:IExtendedRequest,res:Response,next:NextFunction)=>{
-    console.log(req.user ,"Name from middleware")
-       
+    // console.log(req.user ,"Name from middleware")
+       try{
         const {instituteName,instituteEmail,institutePhoneNumber,instituteAddress} = req.body 
         const instituteVatNo = req.body.instituteVatNo || null 
         const institutePanNo = req.body.institutePanNo || null
@@ -16,8 +17,6 @@ const createInstitute = async (req:IExtendedRequest,res:Response,next:NextFuncti
             })
             return
         }
-
-       
 
         const instituteNumber =   generateRandomInsituteNumber()  
        await sequelize.query(`CREATE TABLE IF NOT EXISTS institute_${instituteNumber} (
@@ -35,21 +34,89 @@ const createInstitute = async (req:IExtendedRequest,res:Response,next:NextFuncti
         await sequelize.query(`INSERT INTO institute_${instituteNumber}(instituteName,instituteEmail,institutePhoneNumber,instituteAddress,institutePanNo,instituteVatNo) VALUES(?,?,?,?,?,?)`,{
             replacements : [instituteName,instituteEmail,institutePhoneNumber,instituteAddress,institutePanNo,instituteVatNo]
         })
+      
+/// history table 
+await sequelize.query(`CREATE TABLE IF NOT EXISTS user_institute (
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, 
+    userId VARCHAR(255) REFERENCES users(id), 
+    instituteNumber INT UNIQUE,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+)`)
 
-        res.status(200).json({
-            message : "Institute Inserted Successfully!"
+  if(req.user){
+await sequelize.query(`INSERT INTO user_institute(userId,instituteNumber) VALUES(?,?)`,{
+    replacements : [req.user.id,instituteNumber]
+})
+
+
+
+//     const userData= await User.findByPk(req.user.id)
+//     req.user?.instituteNumber = instituteNumber
+//     await user?.save() 
+// }
+
+
+await User.update({
+    currentInstituteNumber: instituteNumber,
+    role:"institute"
+},{
+        where: {
+            id: req.user.id
+        }
+    })
+}
+  req.instituteNumber = instituteNumber  
+        // req.user?.instituteNumber = instituteNumber; 
+        next()
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+
+
+     
+
+const createTeacherTable = async (req:IExtendedRequest,res:Response,next:NextFunction)=>{
+        const instituteNumber = req.body.instituteNumber 
+       
+        // create teacher table    
+await sequelize.query(`CREATE TABLE IF NOT EXISTS teacher_${instituteNumber}(
+            id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, 
+            teacherName VARCHAR(255) NOT NULL, 
+            teacherEmail VARCHAR(255) NOT NULL UNIQUE, 
+            teacherPhoneNumber VARCHAR(255) NOT NULL UNIQUE
+            )`)
+    next()
+}
+
+const createStudentTable = async(req:IExtendedRequest,res:Response,next:NextFunction)=>{
+    const instituteNumber = req.instituteNumber
+    await sequelize.query(`CREATE TABLE IF NOT EXISTS student_${instituteNumber}(
+        id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, 
+        studentName VARCHAR(255) NOT NULL, 
+        studentPhoneNo VARCHAR(255) NOT NULL UNIQUE
+        )`)
+    next()
+}
+
+const createCourseTable = async(req:IExtendedRequest,res:Response)=>{
+    const instituteNumber = req.instituteNumber 
+    await sequelize.query(`CREATE TABLE IF NOT EXISTS course_${instituteNumber}(
+        id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+        courseName VARCHAR(255) NOT NULL UNIQUE, 
+        coursePrice VARCHAR(255) NOT NULL
+        )`)
+    
+
+     res.status(200).json({
+            message : "Institute Inserted Successfully!",
+            instituteNumber, 
         })
-         next()
-    }
-
-    const createTeacherTable = async (req:Request,res:Response)=>{    
-// await sequelize.query(`CREATE TABLE teacher_${instituteNumber}(
-//             id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, 
-//             teacherName VARCHAR(255) NOT NULL, 
-//             teacherEmail VARCHAR(255) NOT NULL UNIQUE, 
-//             teacherPhoneNumber VARCHAR(255) NOT NULL UNIQUE
-//             )`)
+       
     }
 
 
-export default createInstitute
+
+export { createInstitute,createTeacherTable,createStudentTable,createCourseTable}
