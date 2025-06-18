@@ -6,12 +6,13 @@ export interface IExtendedRequest extends Request{
        user ?: {
               
 
-              id : string,
-        email : string, 
-        role : string, 
-        username : string 
-      
-        
-       },
-        instituteNumber ?: number | string
+              id ?:number | string,
+             currentInstituteNumber: number | string;
+
+               username: string
+                
+       }
+          instituteNumber?: number | string
+       // },
+       
 }
