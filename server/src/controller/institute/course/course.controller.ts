@@ -37,7 +37,7 @@ const createCourse = async (req: IExtendedRequest, res: Response) => {
     })
 
     console.log(returnedData)
-    res.status(200).json({
+    res.status(201).json({
         message: 'Course created successfully'
     })
 }
