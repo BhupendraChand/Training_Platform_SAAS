@@ -1,9 +1,9 @@
-import { Request,Response } from 'express';
+import { Request } from 'express';
 
 import multer from 'multer';
 
 const storage = multer.diskStorage({
-    destination:function(Request, file:Express.Multer.File,cb:any) {
+    destination:function(req:Request,file:Express.Multer.File,cb:any) {
  
         cb(null,'./src/storage');   
     },
