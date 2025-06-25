@@ -7,7 +7,7 @@ const storage = multer.diskStorage({
  
         cb(null,'./src/storage');   
     },
-    filename:  function(Request, file:Express.Multer.File,cb:any){
+    filename:  function(req:Request, file:Express.Multer.File,cb:any){
           cb(null,Date.now()+""+ file.originalname);
     }
     });

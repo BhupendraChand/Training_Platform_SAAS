@@ -1,5 +1,5 @@
 import multer from 'multer'
-import {cloudinary,storage} from './../services/cloudinaryConfig'
+import {cloudinary,storage} from '../services/cloudinary.config'
 import { Request } from 'express'
 const upload = multer({storage : storage, 
 
@@ -8,7 +8,7 @@ const upload = multer({storage : storage,
         if(allowedFileTypes.includes(file.mimetype)){
             cb(null,true)
         }else{
-            cb(new Error("Only image support garxaa hai!!!"))
+            cb(new Error("Only image are Supported.!!!"))
         }
     }, 
     limits : {

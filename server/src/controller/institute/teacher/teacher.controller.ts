@@ -16,7 +16,7 @@ const createTeacher = async(req:IExtendedRequest,res:Response)=>{
             message : "Please provide teacherName,teacherEmail,teacherPhoneNumber,teacherExpertise,teacherSalary,teacherJoinedDate"
         })
     }
-    // password generate functionnn 
+    // password generate function
     const data = generateRandomPassword(teacherName)
     const insertedData =  await sequelize.query(`INSERT INTO teacher_${instituteNumber}(teacherName,teacherEmail,teacherPhoneNumber,teacherExpertise,joinedDate,salary,teacherPhoto,teacherPassword) VALUES(?,?,?,?,?,?,?,?)`,{
         type : QueryTypes.INSERT, 
@@ -36,13 +36,13 @@ const createTeacher = async(req:IExtendedRequest,res:Response)=>{
     // send mail function goes here 
     const mailInformation = {
         to : teacherEmail, 
-        subject : "Welcome to our saas MERN project", 
-        text : `Welcome xa hai, <b>Email</b> : ${teacherEmail}, Password : ${data.plainVersion}`
+        subject : "Welcome to Our Advance Java Project", 
+  text : `Welcome xa hai, <b>Email</b> : ${teacherEmail}, Password : ${data.plainVersion}, Your Institute Number : ${instituteNumber}`
     }
     await sendMail(mailInformation)
 
     res.status(200).json({
-        message : "teacher created"
+        message : "Teacher Created Successfully."
     })
 
 }
@@ -65,7 +65,7 @@ const deleteTeacher = async(req:IExtendedRequest,res:Response)=>{
         replacements : [id]
     })
     res.status(200).json({
-        message : "delete Teacher successfully"
+        message : "delete Teacher Successfully"
     })
 }
 

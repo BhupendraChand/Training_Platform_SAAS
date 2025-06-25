@@ -44,7 +44,7 @@ const createCourse = async (req: IExtendedRequest, res: Response) => {
         courseDescription,
         courseDuration,
         courseLevel,
-        courseThumbnail || "https://digitalpathshalanepal.com/image/hello.png",
+        courseThumbnail ,
       ],
     }
   );
@@ -76,6 +76,7 @@ const deleteCourse = async (req: IExtendedRequest, res: Response) => {
 
   await sequelize.query(`DELETE FROM course_${instituteNumber} WHERE id = ?`, {
     replacements: [courseId],
+     type : QueryTypes.DELETE
   });
   res.status(200).json({
     message: "Course deleted Successfully.",

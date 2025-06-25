@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import User from '../../../database/models/user.model';
 import bcrypt from "bcrypt"
 import jwt from 'jsonwebtoken'
+import generateJWTToken from "../../../services/generate.jwt.token"
 class AuthController {
 
     // register user
@@ -60,8 +61,9 @@ class AuthController {
          const isPasswordMatch = bcrypt.compareSync(password,data[0].password)
          if(isPasswordMatch){
             // login vayo , token generation 
-           const token =  jwt.sign({id :data[0].id },"venom",{
-                expiresIn : "30d"
+          const token = generateJWTToken({id:data[0].id})
+            res.status(200).json({
+                token : token, 
             })
             res.status(200).json({
                 token : token,

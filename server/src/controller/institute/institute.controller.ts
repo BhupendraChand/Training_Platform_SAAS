@@ -3,7 +3,6 @@ import sequelize from "../../database/connection";
 import generateRandomInsituteNumber from "../../services/generate.random.institute.number";
 import { IExtendedRequest } from "../../middleware/type";
 import User from "../../database/models/user.model";
-import asyncErrorHandler from "../../services/asyncErrorHandler";
 import categories from "../../seed";
 import sendMail from "../../services/send.mail";
 
@@ -180,7 +179,7 @@ const createCourseTable = async (req: IExtendedRequest, res: Response) => {
         )`);
 
   res.status(200).json({
-    message: "Institute Inserted Successfully!",
+    message: "Course Inserted Successfully!",
     instituteNumber,
   });
 };

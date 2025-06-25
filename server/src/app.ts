@@ -5,7 +5,8 @@ import authRoute from './route/globals/auth/auth.route';
 import courseRoute from './route/institute/course/course.route'
 import studentRoute from './route/institute/student/student.route'
 import categoryRoute from './route/institute/category/category.route'
-import teacherRoute from './route/institute/teacher/teacher.route'
+import teacherInstituteRoute from './route/institute/teacher/teacher.route'
+import teacherRoute from './route/teacher/teacher.route'
 
 app.use(express.json());
 
@@ -25,7 +26,10 @@ app.use('/api/institute/student',studentRoute)
 /// category route
 app.use('/api/institute/category',categoryRoute)
 
-/// teacher route
-app.use('/api/institute/teacher',teacherRoute)
+///Institute teacher route
+app.use('/api/institute/teacher',teacherInstituteRoute)
+
+// Teacher Route
+app.use('/api/teacher',teacherRoute)
 
 export default app;

@@ -9,13 +9,7 @@ interface IMailInformation{
 }
 
 const sendMail = async (mailInformation:IMailInformation)=>{
- // mail pathaune logic goes here : 
- // step 1 : create nodemailer Transport 
- // transporter/transport ---> configuration setup lai transport 
- // manish@gmail.com -- mail snt huncha 
- // manish@yahoo.com --> 
- // auth --> tapai ko/ tapai ko business ko gmail, password k ho tyo hamro auth ho, 
- // sender ko gmail/password 
+// nodemailer setup
  const transporter = nodemailer.createTransport({
     service : "gmail",  // yahoo, hotmail 
     auth : {
