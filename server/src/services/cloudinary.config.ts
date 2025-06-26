@@ -14,7 +14,7 @@ const storage = new CloudinaryStorage({
     cloudinary,
     params : async(req,file)=>(
         {
-            folder : "fullstack-saas"
+            folder : "Learning_Platform_Sass"
         }
     )
 

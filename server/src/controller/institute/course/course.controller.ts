@@ -90,10 +90,12 @@ const getAllCourse = async (req: IExtendedRequest, res: Response) => {
 
   const courses = await sequelize.query(
     `SELECT * FROM course_${instituteNumber}`
+    
   );
   res.status(200).json({
     message: "Course fetched Successfully.",
     data: courses,
+    
   });
 };
 
