@@ -37,7 +37,9 @@ const createCourse = async (req: IExtendedRequest, res: Response) => {
     courseLevel,
     courseThumbnail) 
     VALUES(?,?,?,?,?,?)`,
+    
     {
+      type: QueryTypes.INSERT,
       replacements: [
         coursePrice,
         courseName,
@@ -45,6 +47,7 @@ const createCourse = async (req: IExtendedRequest, res: Response) => {
         courseDuration,
         courseLevel,
         courseThumbnail ,
+       
       ],
     }
   );
@@ -60,13 +63,13 @@ const deleteCourse = async (req: IExtendedRequest, res: Response) => {
   const instituteNumber = req.user?.currentInstituteNumber;
   const courseId = req.params.id;
   // first check if course exists or not , if exists --> delete else not delete
-  const [courseData] = await sequelize.query(
+  const courseData = await sequelize.query(
     `SELECT * FROM course_${instituteNumber} WHERE id=?`,
     {
       replacements: [courseId],
          type : QueryTypes.SELECT
     }
-  )as any[];
+  )
 
   if (courseData.length == 0) {
     return res.status(404).json({
@@ -89,7 +92,11 @@ const getAllCourse = async (req: IExtendedRequest, res: Response) => {
   console.log("Current institute number:", req.user?.currentInstituteNumber);
 
   const courses = await sequelize.query(
-    `SELECT * FROM course_${instituteNumber}`
+    `SELECT * FROM course_${instituteNumber}`,
+    
+    {
+      type: QueryTypes.SELECT,
+    }
     
   );
   res.status(200).json({
@@ -150,6 +157,7 @@ const updateCourse = async (req: IExtendedRequest, res: Response) => {
       courseLevel = ?
    WHERE id = ?`,
     {
+      type: QueryTypes.UPDATE,
       replacements: [
         coursePrice,
         courseName,
