@@ -37,7 +37,7 @@ const createInstitute = async (
   const instituteNumber = generateRandomInsituteNumber();
   // create institute table
   await sequelize.query(`CREATE TABLE IF NOT EXISTS institute_${instituteNumber} (
-                       id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
+            id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
             instituteName VARCHAR(255) NOT NULL, 
             instituteEmail VARCHAR(255) NOT NULL UNIQUE, 
             institutePhoneNumber VARCHAR(255) NOT NULL UNIQUE, 
@@ -110,7 +110,7 @@ const createTeacherTable = async (
     await sequelize.query(`CREATE TABLE IF NOT EXISTS teacher_${instituteNumber}(
            id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()), 
             teacherName VARCHAR(255) NOT NULL, 
-            teacherEmail VARCHAR(255) NOT NULL , 
+            teacherEmail VARCHAR(255) NOT NULL UNIQUE , 
             teacherPhoneNumber VARCHAR(255) NOT NULL UNIQUE,
             teacherExpertise VARCHAR(255) NOT NULL,
             joinedDate DATE NOT NULL,
@@ -158,28 +158,31 @@ const createStudentTable = async (
   }
 };
 
-
-const createCategoryTable= async (req: IExtendedRequest, res:Response,next: NextFunction) => {
+const createCategoryTable = async (
+  req: IExtendedRequest,
+  res: Response,
+  next: NextFunction
+) => {
   // create category table
   const instituteNumber = req.user?.currentInstituteNumber;
-  try{
-  await sequelize.query(`CREATE TABLE IF NOT EXISTS category_${instituteNumber}(
+  try {
+    await sequelize.query(`CREATE TABLE IF NOT EXISTS category_${instituteNumber}(
        id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()), 
-        categoryName VARCHAR(100) NOT NULL, 
+        categoryName VARCHAR(100) NOT NULL UNIQUE, 
         categoryDescription TEXT,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
         updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         )`);
 
-  categories.forEach(async function (category) {
-    await sequelize.query(
-      `INSERT INTO category_${instituteNumber}(categoryName,categoryDescription) VALUES(?,?)`,
-      {
-        replacements: [category.categoryName, category.categoryDescription],
-      }
-    );
-  });
-  next();
+    categories.forEach(async function (category) {
+      await sequelize.query(
+        `INSERT INTO category_${instituteNumber}(categoryName,categoryDescription) VALUES(?,?)`,
+        {
+          replacements: [category.categoryName, category.categoryDescription],
+        }
+      );
+    });
+    next();
   } catch (error) {
     console.log(error, "Error for creating category table");
     res.status(500).json({
@@ -187,7 +190,6 @@ const createCategoryTable= async (req: IExtendedRequest, res:Response,next: Next
     });
   }
 };
-
 
 const createCourseTable = async (req: IExtendedRequest, res: Response) => {
   const instituteNumber = req.user?.currentInstituteNumber;
@@ -212,7 +214,6 @@ const createCourseTable = async (req: IExtendedRequest, res: Response) => {
     instituteNumber,
   });
 };
-
 
 export {
   createInstitute,

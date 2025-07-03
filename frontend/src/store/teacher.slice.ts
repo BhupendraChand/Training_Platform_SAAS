@@ -1,28 +1,25 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-const teacherSlice=createSlice({
-    name: "teacherSlice",
-    initialState: {
-        teacherName:"",
-        teacherPassword:""
-    },
-    reducers:{
-        /// state is initialState and action garna  trigger garna 
-        setTeacherName: (state, action: PayloadAction<string>) => {
-            state.teacherName = action.payload;
-        },
-        setTeacherPassword: (state, action: PayloadAction<string>) => {
-            state.teacherPassword = action.payload;
+import { createSlice } from '@reduxjs/toolkit';
+const teacherSlice  = createSlice({
+    name : "teacherSlice", 
+    initialState : {
+        teacherName : "", 
+        teacherPassword : "", 
+    }, 
+    reducers : {
+        setTeacherName(state,action){
+            state.teacherName = "ram"
+        }, 
+        setTeacherPassword(state,action){
+            state.teacherPassword = "ram123"
         }
     }
-
 })
 
-const {setTeacherName,setTeacherPassword} = teacherSlice.actions.setTeacherName, setTeacherPassword();
 
 
 
-action:{
-    setTeacherName:(){},
-    setTeacherPassword:(){}
-}
+const {setTeacherName,setTeacherPassword} = teacherSlice.actions
+
+export default teacherSlice.reducer;
+export {setTeacherName,setTeacherPassword}
+
