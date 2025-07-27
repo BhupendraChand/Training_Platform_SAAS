@@ -7,6 +7,12 @@ import studentRoute from './route/institute/student/student.route'
 import categoryRoute from './route/institute/category/category.route'
 import teacherInstituteRoute from './route/institute/teacher/teacher.route'
 import teacherRoute from './route/teacher/teacher.route'
+import cors from 'cors'
+
+app.use(cors({
+    origin : "http://localhost:3000"
+}))
+
 
 app.use(express.json());
 

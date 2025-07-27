@@ -58,17 +58,16 @@ class AuthController {
     }else{
     //    check password and hash password
        
-         const isPasswordMatch = bcrypt.compareSync(password,data[0].password)
+          const isPasswordMatch = bcrypt.compareSync(password,data[0].password)
          if(isPasswordMatch){
             // login vayo , token generation 
-          const token = generateJWTToken({id:data[0].id})
+         const token = generateJWTToken({id:data[0].id})
             res.status(200).json({
-                token : token, 
-            })
-            res.status(200).json({
-                token : token,
-                message:"User Login Successful."
-
+                data : {
+                    token : token, 
+                    username : data[0].userName
+                },
+                message : "Logged in success"
             })
          }else{
             res.status(403).json({
