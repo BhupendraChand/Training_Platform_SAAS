@@ -87,24 +87,19 @@ const deleteCourse = async (req: IExtendedRequest, res: Response) => {
 };
 
 //// Get All Courses
-const getAllCourse = async (req: IExtendedRequest, res: Response) => {
-  const instituteNumber = req.user?.currentInstituteNumber;
-  console.log("Current institute number:", req.user?.currentInstituteNumber);
+const getAllCourse = async (req:IExtendedRequest,res:Response)=>{
+    const instituteNumber = req.user?.currentInstituteNumber; 
 
-  const courses = await sequelize.query(
-    `SELECT * FROM course_${instituteNumber}`,
+    const courses = await sequelize.query(`SELECT c.id,c.courseName FROM course_${instituteNumber} AS c JOIN category_${instituteNumber} AS cat ON c.categoryId = cat.id`,{
+        type : QueryTypes.SELECT
+    })
+    res.status(200).json({
+        message : "Course fetched", 
+        data : courses, 
     
-    {
-      type: QueryTypes.SELECT,
-    }
-    
-  );
-  res.status(200).json({
-    message: "Course fetched Successfully.",
-    data: courses,
-    
-  });
-};
+    })
+}
+
 
 // Get Single Course
 const getSingleCourse = async (req: IExtendedRequest, res: Response) => {
