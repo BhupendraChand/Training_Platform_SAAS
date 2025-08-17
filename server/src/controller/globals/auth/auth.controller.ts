@@ -4,6 +4,7 @@ import User from '../../../database/models/user.model';
 import bcrypt from "bcrypt"
 import jwt from 'jsonwebtoken'
 import generateJWTToken from "../../../services/generate.jwt.token"
+import { UserRole } from "../../../middleware/type"
 class AuthController {
 
     // register user
