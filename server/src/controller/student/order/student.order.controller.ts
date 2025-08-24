@@ -8,7 +8,6 @@ import { KhaltiPayment } from "./payment.integration";
 
 // upload.fields([{ name: 'avatar1', maxCount: 1 }, {name:'avatar2', maxCount:1},{name:'avatar3', maxCount : 1}]
 
-//
 
 
 enum PaymentMethod{
@@ -17,6 +16,11 @@ enum PaymentMethod{
     KHALTI = "khalti"
 }
 
+
+enum VerificationStatus{
+    Completed = "Completed", 
+
+}
 
 const createStudentCourseOrder = async(req:IExtendedRequest,res:Response)=>{
     const userId = req.user?.id 
@@ -73,7 +77,7 @@ const createStudentCourseOrder = async(req:IExtendedRequest,res:Response)=>{
           id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()), 
             courseId VARCHAR(36) , 
             instituteId VARCHAR(36), 
-            orderId VARCHAR(36) REFERENCES student_order_${userId}, 
+            orderId VARCHAR(100),
             createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
             updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         )`)
@@ -81,9 +85,10 @@ const createStudentCourseOrder = async(req:IExtendedRequest,res:Response)=>{
     await sequelize.query(`CREATE TABLE IF NOT EXISTS student_payment_${userId}(
          id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()), 
             paymentMethod ENUM('esewa','khalti','cod'), 
-            paymentStatus ENUM('paid','pending','unpaid'),
+            pidx VARCHAR(26),
+            paymentStatus ENUM('paid','pending','unpaid') DEFAULT('unpaid'),
             totalAmount VARCHAR(10) NOT NULL,
-            orderId VARCHAR(36) REFERENCES student_order_${userId}, 
+            orderId VARCHAR(100), 
             createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
             updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         )`)
@@ -93,15 +98,49 @@ const createStudentCourseOrder = async(req:IExtendedRequest,res:Response)=>{
             type  : QueryTypes.INSERT, 
             replacements : [whatsapp_no,remarks,userData?.email]
         })
-        console.log(data)
+    const [result]: {id : {
+        id : string
+    }}[] =  await sequelize.query(`SELECT id FROM student_order_${userId} WHERE whatsapp_no = ? AND remarks = ?`,{
+        type : QueryTypes.SELECT, 
+        replacements : [whatsapp_no,remarks]
+     })
+    
+     console.log(result.id,"Result")
+        console.log(data,"Dataaaaa")
         for(let orderDetail of orderDetailsData){
             await sequelize.query(`INSERT INTO student_order_details_${userId}(courseId,instituteId, orderId) VALUES(?,?,?)`,{
                 type : QueryTypes.INSERT, 
-                replacements : [orderDetail.courseId,orderDetail.instituteId, 12323]
+                replacements : [orderDetail.courseId,orderDetail.instituteId, result.id]
             })
         }
-
+    
+        let pidx; 
         if(paymentMethod === PaymentMethod.ESEWA){
+            const{amount,} = req.body
+            const paymentData = {
+                 tax_amount : 0,
+                 product_service_charge : 0,
+                 product_delivery_charge : 0 ,
+                 product_code : process.env.ESEWA_PRODUCT_CODE ,
+                 totalAmount : amount,
+                 transaction_uuid : orderDetailsData[0].courseId,
+                 success_url : "http://localhost:3000/", 
+                 failure_url  : "http://localhost:3000/failure", 
+                 signed_field_names : "total_amount,transaction_uuid,product_code"
+            }
+            const data = `total_amount=${paymentData.totalAmount},transaction_uuid=${paymentData.transaction_uuid},product_code=${paymentData.product_code}`
+            const esewaSecretKey = process.env.ESEWA_SECRET_KEY
+            const signature = generateSha256Hash(data,esewaSecretKey as string)
+
+           const response = await axios.post("https://rc-epay.esewa.com.np/api/epay/main/v2/form",{
+                ...paymentData, signature
+            },{
+                headers : {
+                    "Content-Type" : "application/x-www-form-urlencoded"
+                }
+            })
+
+            console.log(response)
 
             // esewa integration function call here 
         }else if(paymentMethod === PaymentMethod.KHALTI){
@@ -114,6 +153,7 @@ const createStudentCourseOrder = async(req:IExtendedRequest,res:Response)=>{
             purchase_order_name : "Order_" + orderDetailsData[0].courseId
          })
          if(response.status === 200){
+            pidx = response.data.pidx
              res.status(200).json({
                  message : "Takethis", 
                  data : response.data
@@ -130,10 +170,37 @@ const createStudentCourseOrder = async(req:IExtendedRequest,res:Response)=>{
         }else{
             // stripe 
         }
-
-
+    await sequelize.query(`INSERT INTO student_payment_${userId}(paymentMethod,totalAmount,orderId,pidx) VALUES(?,?,?,?)`,{
+            type : QueryTypes.INSERT, 
+            replacements : [paymentMethod,amount,result.id,pidx]
+        })
 
 }
 
 
-export {createStudentCourseOrder}
+const studentCoursePaymentVerification = async(req:IExtendedRequest,res:Response)=>{
+    const {pidx} = req.body 
+    const userId = req.user?.id 
+
+    if(!pidx) return res.status(400).json({message : "Please provide pidx"})
+        const response = await axios.post("https://dev.khalti.com/api/v2/epayment/lookup/",{pidx},{
+    headers:{
+        Authorization : "Key b68b4f0f4aa84599ad9b91c475ed6833"
+    }})
+    const data = response.data 
+    if(data.status === VerificationStatus.Completed){
+        await sequelize.query(`UPDATE student_payment_${userId} SET paymentStatus=? WHERE pidx=?`,{
+            type : QueryTypes.UPDATE, 
+            replacements : ['paid',pidx]
+        })
+        res.status(200).json({
+            message : "Payment verified successfully"
+        })
+    }else{
+        res.status(500).json({
+            message : "Payment not verified!!"
+        })
+    }
+}
+
+export {createStudentCourseOrder,studentCoursePaymentVerification}
