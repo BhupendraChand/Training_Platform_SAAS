@@ -5,6 +5,7 @@ import { IExtendedRequest } from "../../../middleware/type";
 import { Response } from "express";
 import { getSequelizeTypeByDesignType } from "sequelize-typescript";
 import { KhaltiPayment } from "./payment.integration";
+import generateSha256Hash from "../../../services/generateSha256Hash";
 
 // upload.fields([{ name: 'avatar1', maxCount: 1 }, {name:'avatar2', maxCount:1},{name:'avatar3', maxCount : 1}]
 
